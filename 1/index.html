@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project 1 - CS180</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="hero container">
+      <div class="glow">
+        <h1>Project 1: Colorizing the Prokudin-Gorskii Photos</h1>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel spaced">
+        <div class="kicker">Single-Scale Logic</div>
+        <p class="lead">I start with a simple, single-resolution search: I slide one channel over another at the original image size, and pick the translation that maximizes similarity.</p>
+        <p>
+          Let <span class="math">ref</span> be the reference channel (G) and <span class="math">mov</span> be the moving channel (R or B). For each integer offset <span class="math">(dy, dx)</span> in a small search window, I compare their overlapping interior regions (I crop borders to avoid edge artifacts) using normalized cross-correlation (NCC):
+        </p>
+        <p>
+          <span class="math">NCC(a,b) = ⟨a-ȧ, b-ḃ⟩ / (‖a-ȧ‖ · ‖b-ḃ‖)</span>
+        </p>
+        <p>
+          I use zero-mean, scale-invariant matching and then I choose the <span class="math">(dy, dx)</span> with the highest NCC as the alignment for that channel.
+        </p>
+        <hr class="hr" />
+        <h3 class="gallery-title">Single-scale results (and shifts)</h3>
+        <div class="grid">
+          <figure class="card">
+            <img src="images/single_cathedral.jpg" alt="Single-scale aligned cathedral" />
+            <figcaption class="cap">
+              <div class="name">single_cathedral.jpg</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (2, 5)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (3, 12)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/single_monastery.jpg" alt="Single-scale aligned monastery" />
+            <figcaption class="cap">
+              <div class="name">single_monastery.jpg</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (2, -3)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (3, 3)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/single_tobolsk.jpg" alt="Single-scale aligned tobolsk" />
+            <figcaption class="cap">
+              <div class="name">single_tobolsk.jpg</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (3, 3)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (4, 7)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+        <p class="legend">Notation: channel X→Y (dy, dx) reports how X must shift to align to Y. For display, I report G→B and R→B relative to blue.</p>
+      </section>
+
+      
+
+      <section class="panel spaced">
+        <div class="kicker">Single - Scaled Large Image</div>
+        <h2 class="gallery-title">Trying single-scale to Big Image like emir.jpg</h2>
+        <div class="two-col">
+          <div>
+            <p>
+              Some plates (like <span class="math">emir.tif</span>) have strong, uneven channel intensities. After alignment, the image looked tinted even if geometry is correct. I applied the same single scaled used above to this image. I saw that the color plates very not aligned making a deformed colorizing.
+            </p>
+          </div>
+          <figure class="card">
+            <img src="images/single_emir.jpg" alt="Emir single-scale aligned" />
+            <figcaption class="cap">
+              <div class="name">emir — single-scale</div>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="panel spaced steps">
+        <div class="kicker">My working process</div>
+        <h2 class="gallery-title">From grayscale plates to colorized images</h2>
+        <p class="lead">I reconstruct color from Prokudin-Gorskii's three monochrome plates by splitting, aligning with NCC across a pyramid of scales, and re-stacking with simple exposure balancing.</p>
+        <ol>
+          <li>
+            I start with a single grayscale image containing three stacked plates: blue (top), green (middle), red (bottom). The full height is <span class="math">H</span>, I extract <span class="math">B = I[0:H/3]</span>, <span class="math">G = I[H/3:2H/3]</span>, <span class="math">R = I[2H/3:H]</span>.
+          </li>
+          <li>
+            Then I choose the green channel as reference with the aim to find integer translations <span class="math">(dy_R, dx_R)</span> and <span class="math">(dy_B, dx_B)</span> such that the red and blue channels align to green.
+          </li>
+          <li>
+            Before matching, I compute edge magnitude features (Sobel) and standardize each level to unit scale; edges stabilize NCC against lighting and texture differences.
+          </li>
+          <li>
+            Similarity via normalized cross-correlation (NCC). For overlapping interior windows (I crop a fixed interior fraction to avoid borders), I define:
+            <span class="math">NCC(a,b) = ⟨a - ȧ, b - ḃ⟩ / (‖a - ȧ‖ · ‖b - ḃ‖)</span>.
+            The best shift is the <span class="math">(dy, dx)</span> that maximizes NCC.
+          </li>
+          <li>
+            Multi-scale (pyramids) for large shifts. Let <span class="math">L = ⌊log₂(min(h,w)/250)⌋</span> and scales <span class="math">s ∈ {2^L, …, 2, 1}</span>. At each scale, I downsample <span class="math">R</span> and <span class="math">G</span>, evaluate NCC in a radius around the upscaled previous best, update the cumulative <span class="math">(dy, dx)</span>, and descend to finer scales.
+          </li>
+          <li>
+            I compose the aligned image. After obtaining total shifts, I translate the red and blue planes into a common canvas, crop a small border to remove alignment seams, and stack <span class="math">RGB = [R_aligned, G_crop, B_aligned]</span> with values clipped to <span class="math">[0,1]</span>.
+          </li>
+          <li>
+            To counter color casts, I scale each channel by the ratio of the mean intensity across all channels to its own mean: with per-image mean <span class="math">m_c</span> and global mean <span class="math">m̄</span>,
+            <span class="math">RGB′(x) = clip(RGB(x) · (m̄ / m), 0, 1)</span> (applied per channel).
+          </li>
+          <li>
+            Report shifts relative to blue. From raw estimates <span class="math">R→G = (dy_R, dx_R)</span>, <span class="math">B→G = (dy_B, dx_B)</span>, I display
+            <span class="math">G→B = (-dx_B, -dy_B)</span> and <span class="math">R→B = (dx_R - dx_B, dy_R - dy_B)</span> so all offsets are measured against blue.
+          </li>
+          <li>
+            Finally, I also relatively crop 5%(randomly choosen on hit and try trial method) of the borders of the image for presenttion.
+          </li>
+        </ol>
+      </section>
+
+      <section class="panel spaced">
+        <div class="kicker">Why Pyramids</div>
+        <p class="lead">Large shifts are hard to find at full resolution: the search is slow and can get distracted by repeated patterns. I used a pyramid levels to make the problem well-posed and aligned for even bigger images.</p>
+        <p>
+          I build an image pyramid by repeatedly downscaling each channel (by factors <span class="math">2^L, …, 2, 1</span>). At the coarsest level, I search a wider radius because the image is small; I then propagate the best offset to the next finer level (scaled up) and only search a tight neighborhood around it. This continues until the original scale, yielding the final <span class="math">(dy, dx)</span>.
+        </p>
+        <p>
+          To make similarity more illumination-invariant, I compare edge magnitudes (Sobel) and standardize each level to unit standard deviation before NCC.
+        </p>
+        <p><span class="math">maximize NCC(a,b) over (dy,dx) at each level</span>, with progressively smaller search windows.</p>
+        <p>
+          Conventions: if <span class="math">B</span> is aligned to <span class="math">G</span> by <span class="math">(dy_B, dx_B)</span> and <span class="math">R</span> to <span class="math">G</span> by <span class="math">(dy_R, dx_R)</span>, then I report <span class="math">G→B = (-dx_B, -dy_B)</span> and <span class="math">R→B = (dx_R - dx_B, dy_R - dy_B)</span> so everything is relative to blue.
+        </p>
+      </section>
+
+      <section class="panel spaced">
+        <div class="kicker">All Results</div>
+        <h2 class="gallery-title">Pyramid NCC results(All 14 images) — images and reported shifts</h2>
+        <div class="grid">
+          <figure class="card">
+            <img src="images/out_cathedral.jpg" alt="cathedral result" />
+            <figcaption class="cap">
+              <div class="name">cathedral.jpg</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (2, 5)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (3, 12)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_church.jpg" alt="church result" />
+            <figcaption class="cap">
+              <div class="name">church.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (4, 25)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (-4, 58)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_emir.jpg" alt="emir result" />
+            <figcaption class="cap">
+              <div class="name">emir.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (24, 49)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (41, 107)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_harvesters.jpg" alt="harvesters result" />
+            <figcaption class="cap">
+              <div class="name">harvesters.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (18, 60)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (15, 124)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_icon.jpg" alt="icon result" />
+            <figcaption class="cap">
+              <div class="name">icon.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (17, 42)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (22, 90)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_italil.jpg" alt="italil result" />
+            <figcaption class="cap">
+              <div class="name">italil.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (22, 38)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (36, 77)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_lastochikino.jpg" alt="lastochikino result" />
+            <figcaption class="cap">
+              <div class="name">lastochikino.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (-2, -3)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (-9, 75)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_lugano.jpg" alt="lugano result" />
+            <figcaption class="cap">
+              <div class="name">lugano.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (-17, 41)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (-30, 93)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_melons.jpg" alt="melons result" />
+            <figcaption class="cap">
+              <div class="name">melons.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (10, 80)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (13, 176)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_monastery.jpg" alt="monastery result" />
+            <figcaption class="cap">
+              <div class="name">monastery.jpg</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (2, -3)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (3, 3)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_self_portrait.jpg" alt="self portrait result" />
+            <figcaption class="cap">
+              <div class="name">self_portrait.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (29, 78)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (37, 176)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_siren.jpg" alt="siren result" />
+            <figcaption class="cap">
+              <div class="name">siren.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (-6, 49)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (-25, 96)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_three_generations.jpg" alt="three generations result" />
+            <figcaption class="cap">
+              <div class="name">three_generations.tif</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (13, 53)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (10, 112)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+          <figure class="card">
+            <img src="images/out_tobolsk.jpg" alt="tobolsk result" />
+            <figcaption class="cap">
+              <div class="name">tobolsk.jpg</div>
+              <div class="kv-list">
+                <div class="kv"><span class="k">G→B</span><span class="v">= (3, 3)</span></div>
+                <div class="kv"><span class="k">R→B</span><span class="v">= (4, 7)</span></div>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    </main>
+  </body>
+  </html>
