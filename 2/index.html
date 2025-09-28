@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Vision Project 2: Filters and Applications</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">Computer Vision Project 2</h1>
+            <h2 class="subtitle">Filters and Applications</h2>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Part 1: Filters and Edges -->
+            <section id="part1" class="section">
+                <h2 class="section-title">Part 1: Filters and Edges</h2>
+            </section>
+
+            <!-- Part 1.1: Convolution -->
+            <section id="part1-1" class="subsection">
+                <h3 class="subsection-title">1.1 Convolution Implementation</h3>
+                <div class="content-block">
+
+                    <div class="code-block">
+                        <h4>Implementation</h4>
+                        <pre><code class="python">def conv2d_2_loops(image, kernel):
+    padded = np.pad(image, ((kernel.shape[0] // 2, kernel.shape[0] // 2), (kernel.shape[1] // 2, kernel.shape[1] // 2)))
+    out = np.empty_like(image)
+    out.fill(0)
+    for i in range(out.shape[0]):
+        for j in range(out.shape[1]):
+            out[i, j] = np.sum(padded[i : i + kernel.shape[0], j : j + kernel.shape[1]] * kernel)
+    return out</code></pre>
+                    </div>
+
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <h4>Original Image</h4>
+                            <img src="images/1.1.png" alt="Original image" class="result-image">
+                        </div>
+                        <div class="result-item">
+                            <h4>9x9 Box Filter Convolution</h4>
+                            <img src="images/9x9_Box_Filter_Convo.png" alt="9x9 box filter convolution result" class="result-image">
+                        </div>
+                        <div class="result-item">
+                            <h4>Derivative Filter Dₓ</h4>
+                            <img src="images/Dₓ_Convo.png" alt="Derivative filter Dₓ convolution result" class="result-image">
+                        </div>
+                        <div class="result-item">
+                            <h4>Derivative Filter D_y</h4>
+                            <img src="images/D_y_Convo.png" alt="Derivative filter D_y convolution result" class="result-image">
+                        </div>
+                    </div>
+
+                    <div class="comparison">
+                        <h4>Comparison with scipy.signal.convolve2d</h4>
+                        <p class="analysis">I prototyped both a four-loop reference and the vectorised two-loop version above. Both use explicit zero padding via <code>np.pad</code>, so their boundaries match <code>signal.convolve2d(..., mode="same", boundary="fill")</code>. Numerically the custom outputs are very similar from builtin (max absolute error 5.9 x 10<sup>-8</sup>), but the runtime differs dramatically: collapsing the innermost loops into a NumPy dot makes the two-loop variant roughly 4-5 times faster on the 512x512 test image, while SciPy's C implementation is another order of magnitude faster thanks to cache-friendly blocking.</p>
+                        <div class="metrics">
+                            <div class="metric">
+                                <span class="metric-label">Runtime (4-loop Python):</span>
+                                <span class="metric-value">≈15 s</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Runtime (Custom 2-loop):</span>
+                                <span class="metric-value">≈3 s</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Runtime (SciPy):</span>
+                                <span class="metric-value">≈0.02 s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 1.2: Gradient and Edges -->
+            <section id="part1-2" class="subsection">
+                <h3 class="subsection-title">1.2 Partial Derivatives and Edge Detection</h3>
+                <div class="content-block">
+
+                    <div class="results-grid-4">
+                        <div class="result-item">
+                            <h4>Original Image</h4>
+                            <img src="images/cameraman.png" alt="Original cameraman image" class="result-image">
+                        </div>
+                        <div class="result-item">
+                            <h4>Partial Derivative (X)</h4>
+                            <img src="images/Cameraman_D_x_Convo.png" alt="Partial derivative in X" class="result-image">
+                        </div>
+                        <div class="result-item">
+                            <h4>Partial Derivative (Y)</h4>
+                            <img src="images/Cameraman_D_y_Convo.png" alt="Partial derivative in Y" class="result-image">
+                        </div>
+                        <div class="result-item">
+                            <h4>Gradient</h4>
+                            <img src="images/Cameraman_Eges_1.2.png" alt="Gradient magnitude and thresholded edges" class="result-image">
+                        </div>
+                        <div class="result-item">
+                            <h4>Binarized</h4>
+                            <img src="images/Cameraman_Eges_1.2_binary.png" alt="Gradient magnitude and thresholded edges" class="result-image">
+                        </div>
+                    </div>
+
+                    <div class="methodology">
+                        <h4>Edge Detection Methodology</h4>
+                        <p class="analysis">Filtering the cameraman with the finite-difference kernels from part 1.1 produced gradient magnitudes in the range 0–1.41. Inspecting the distribution (median 0.016, 95th percentile 0.315) showed that most background variation is tiny, so I thresholded at 0.1: high enough to eliminate shadows and sensor noise, but still low enough to keep the tripod, skyline, and coat outlines. The final binary mask casts the surviving pixels to <code>uint8</code> for easier downstream processing.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 1.3: Gaussian and DoG -->
+            <section id="part1-3" class="subsection">
+                <h3 class="subsection-title">1.3 Gaussian and Difference of Gaussians (DoG)</h3>
+                <div class="content-block">
+
+                    <div class="filter-visualization">
+                        <h4>Filter Responses</h4>
+                        <div class="results-grid-3">
+                            <div class="result-item">
+                                <h5>Gaussian Convolution</h5>
+                                <img src="images/cameraman_Gaussian_Convo_1.3.png" alt="Cameraman convolved with a Gaussian" class="result-image">
+                            </div>
+                            <div class="result-item">
+                                <h5>Gradient Magnitude (Blurred)</h5>
+                                <img src="images/Gradient_magnitude_(blurred)_1.3.png" alt="Gradient magnitude after Gaussian blur" class="result-image">
+                            </div>
+                            <div class="result-item">
+                                <h5>Edges via DoG</h5>
+                                <img src="images/Edges_via_DoG_filters_1.3.png" alt="Edges computed with Difference of Gaussians" class="result-image">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cameraman-results">
+                        <h4>Results on Cameraman Image</h4>
+                        <div class="results-grid-3">
+                            <div class="result-item">
+                                <h5>Original</h5>
+                                <img src="images/cameraman.png" alt="Original cameraman" class="result-image">
+                            </div>
+                            <div class="result-item">
+                                <h5>Edges After Gaussian Blur</h5>
+                                <img src="images/Edges_after_Gaussian_blur_0.1_1.3.png" alt="Edges after Gaussian blur" class="result-image">
+                            </div>
+                            <div class="result-item">
+                                <h5>DoG Edge Map</h5>
+                                <img src="images/Edges_via_DoG_filters_1.3.png" alt="DoG edge map" class="result-image">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comparison">
+                        <h4>Comparison with Finite Difference Method</h4>
+                        <p class="analysis">I first built a 9×9 Gaussian with σ=1 using <code>cv2.getGaussianKernel</code>, blurred the image, and differentiated the result. Convolving the Gaussian with the derivative filters yields a separable DoG operator whose responses closely match the smoothed gradients but suppress stray noise around the tower. Compared with the raw finite-difference edges from part 1.2, the DoG map keeps the broad contours while discarding isolated speckles, showing how scale selection stabilises the detector.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 2: Applications -->
+            <section id="part2" class="section">
+                <h2 class="section-title">Part 2: Applications</h2>
+            </section>
+
+            <!-- Part 2.1: Unsharp Mask -->
+            <section id="part2-1" class="subsection">
+                <h3 class="subsection-title">2.1 Unsharp Mask Filter</h3>
+                <div class="content-block">
+
+                    <p class="analysis">I modelled sharpening as <code>sharp = (1 + \alpha)I - \alpha (G_\sigma * I)</code> with σ = 1.5 and α = 1.0 for the headline results. Precomputing the combined kernel keeps the operation to a single convolution, and tuning α exposes the trade-off between contrast boost and halo artefacts.</p>
+
+                    <div class="taj-mahal-demo">
+                        <h4>Taj Mahal Image Results</h4>
+                        <div class="results-grid-2">
+                            <div class="result-item">
+                                <h5>Original</h5>
+                                <img src="images/Original_Taj_2.1.png" alt="Original Taj Mahal" class="result-image">
+                            </div>
+                            <div class="result-item">
+                                <h5>Sharpened</h5>
+                                <img src="images/Unsharp_Original_Taj_2.1.png" alt="Sharpened Taj Mahal" class="result-image">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="custom-image-demo">
+                        <h4>Custom Portrait Pipeline</h4>
+                        <div class="results-grid-3">
+                            <div class="result-item">
+                                <h5>Original</h5>
+                                <img src="images/Original.png" alt="Original custom portrait" class="result-image">
+                            </div>
+                            <div class="result-item">
+                                <h5>Blurred</h5>
+                                <img src="images/Original_blurred_2.1.png" alt="Blurred custom portrait" class="result-image">
+                            </div>
+                            <div class="result-item">
+                                <h5>Sharpened Output</h5>
+                                <img src="images/Original_unblurred_2.1.png" alt="Sharpened custom portrait" class="result-image">
+                            </div>
+                        </div>
+                        <p class="analysis">Blurring and re-sharpening a portrait shows the limits of the technique: the reconstruction reduces the 9x9 Gaussian blur (MSE ≈ 3.1x10<sup>-4</sup>) but still trails the ground truth and introduces faint halos along high-contrast ridges.</p>
+                    </div>
+
+                    <div class="sharpening-variation">
+                        <h4>Effect of Varying Sharpening Amount</h4>
+                        <p class="analysis">I varied the scaling factor on the high-frequency residual to illustrate how halos emerge. Lower weights keep the result close to the blurred base, while higher weights begin to accent edges aggressively and can introduce ringing.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 2.2: Hybrid Images -->
+            <section id="part2-2" class="subsection">
+                <h3 class="subsection-title">2.2 Hybrid Images</h3>
+                <div class="content-block">
+                    <p class="description">To build each hybrid I aligned the image pairs with the provided point-based tool, converted them to grayscale, and then blurred the low-frequency image with σ=10 while extracting σ=3 high-frequency residuals from the other image. I recentred the high-pass component before adding it back so the hybrid remains in a valid intensity range and finally rescaled to [0,1] for saving.</p>
+
+                    <div class="derek-nutmeg">
+                        <h4>Derek + Nutmeg (Detailed Process)</h4>
+
+                        <div class="process-step">
+                            <h5>Original Inputs</h5>
+                            <div class="results-grid-2">
+                                <div class="result-item">
+                                    <h6>Derek</h6>
+                                    <img src="images/DerekPicture.jpg" alt="Original Derek portrait" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Nutmeg</h6>
+                                    <img src="images/nutmeg.jpg" alt="Original Nutmeg portrait" class="result-image">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="process-step">
+                            <h5>Aligned Stack</h5>
+                            <div class="single-image-container">
+                                <img src="images/2/derek_nutmeg_aligned.png" alt="Aligned Derek and Nutmeg" class="result-image-large">
+                            </div>
+                        </div>
+
+                        <div class="process-step">
+                            <h5>Fourier Magnitudes (log)</h5>
+                            <div class="single-image-container">
+                                <img src="images/2/derek_nutmeg_fft.png" alt="Fourier spectra of aligned pair" class="result-image-large">
+                            </div>
+                        </div>
+
+                        <div class="process-step">
+                            <h5>Band-pass Selection</h5>
+                            <div class="single-image-container">
+                                <img src="images/2/derek_nutmeg_filtered_fft.png" alt="Fourier spectra after σ=10/3 filtering" class="result-image-large">
+                            </div>
+                            <p class="analysis">I used σ<sub>low</sub>=10 for Derek and σ<sub>high</sub>=3 for Nutmeg, which keeps the face-level structure in the low-pass channel while preserving Nutmeg’s wrinkles as the high-frequency detail.</p>
+                        </div>
+
+                        <div class="process-step">
+                            <h5>Filtered Components</h5>
+                            <div class="results-grid-2">
+                                <div class="result-item">
+                                    <h6>Low Frequency (Derek)</h6>
+                                    <img src="images/low_frequency_derek_nutmeg.png" alt="Low frequency Derek" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>High Frequency (Nutmeg)</h6>
+                                    <img src="images/high_frequency_derek_nutmeg.png" alt="High frequency Nutmeg" class="result-image">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="process-step">
+                            <h5>Final Hybrid Image</h5>
+                            <div class="hybrid-result">
+                                <img src="images/hybrid_derek_nutmeg.png" alt="Derek + Nutmeg hybrid" class="result-image-large">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="additional-hybrids">
+                        <h4>Additional Hybrid Images</h4>
+
+                        <div class="hybrid-set">
+                            <h5>Dog + Cat</h5>
+                            <div class="results-grid-3">
+                                <div class="result-item">
+                                    <h6>Original Dog</h6>
+                                    <img src="images/littledog.jpg" alt="Original dog" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Original Cat</h6>
+                                    <img src="images/cat2.jpg" alt="Original cat" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Hybrid Result</h6>
+                                    <img src="images/hybrid_dog_cat.png" alt="Dog and cat hybrid" class="result-image">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hybrid-set">
+                            <h5>Wolf-Dog + Doodle</h5>
+                            <div class="results-grid-3">
+                                <div class="result-item">
+                                    <h6>Original Wolf-Dog</h6>
+                                    <img src="images/wolf-dog.jpg" alt="Original wolf-dog" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Original Doodle</h6>
+                                    <img src="images/doodle.jpg" alt="Original doodle" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Hybrid Result</h6>
+                                    <img src="images/hybrid_wolf_dog.png" alt="Wolf-dog hybrid" class="result-image">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="analysis">All hybrids reuse the (σ<sub>low</sub>, σ<sub>high</sub>) = (10, 3).</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Part 2.3-2.4: Image Blending -->
+            <section id="part2-3" class="subsection">
+                <h3 class="subsection-title">2.3-2.4 Multi-resolution Blending</h3>
+                <div class="content-block">
+
+                    <p class="analysis">I reproduced the orange+apple example by constructing five-level Gaussian and Laplacian stacks with σ = 2.0 between levels. The figure above shows three representative bands for each source image, the blended band, and the reconstruction, highlighting how low frequencies mix smoothly while high frequencies remain localised.</p>
+
+                    <div class="single-image-container">
+                        <img src="images/orple_12_plots.png" alt="Gaussian and Laplacian stacks for the oraple blend" class="result-image-large">
+                    </div>
+
+                    <div class="custom-blends">
+                        <h4>Custom Blended Images</h4>
+
+                        <p class="analysis">For each custom blend I blurred a half-plane mask with a Gaussian whose width scales with the image size (≈8% of the width).</p>
+
+                        <div class="custom-blend">
+                            <h5>Blend 1: Apple + Orange (Oraple)</h5>
+                            <div class="results-grid-3">
+                                <div class="result-item">
+                                    <h6>Image 1</h6>
+                                    <img src="images/apple.jpeg" alt="Apple input" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Image 2</h6>
+                                    <img src="images/orange.jpeg" alt="Orange input" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Blended Result</h6>
+                                    <img src="images/oraple_result.png" alt="Oraple blend" class="result-image">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="custom-blend">
+                            <h5>Blend 2: Man + Woman</h5>
+                            <div class="results-grid-3">
+                                <div class="result-item">
+                                    <h6>Image 1</h6>
+                                    <img src="images/man.jpg" alt="Man portrait" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Image 2</h6>
+                                    <img src="images/woman.jpg" alt="Woman portrait" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Blended Result</h6>
+                                    <img src="images/man_woman_result.png" alt="Man and woman blend" class="result-image">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="custom-blend">
+                            <h5>Blend 3: Cat + Dog</h5>
+                            <div class="results-grid-3">
+                                <div class="result-item">
+                                    <h6>Image 1</h6>
+                                    <img src="images/cat2.jpg" alt="Cat input" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Image 2</h6>
+                                    <img src="images/littledog.jpg" alt="Dog input" class="result-image">
+                                </div>
+                                <div class="result-item">
+                                    <h6>Blended Result</h6>
+                                    <img src="images/dog_cat_result.png" alt="Cat and dog blend" class="result-image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 Mehul Jaiswal. Computer Vision Project 2.</p>
+        </footer>
+    </div>
+</body>
+</html>
