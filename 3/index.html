@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project #3 (proj3A) CS180</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Project #3 (proj3A) CS180</h1>
+    </header>
+
+    <main>
+        <!-- Section A.1: Shoot the Pictures -->
+        <section id="shoot-pictures">
+            <h2>A.1: Shoot the Pictures</h2>
+
+            <div class="image-grid image-grid--two">
+                <div class="image-container">
+                    <img src="images/A2.1....jpg" alt="A.1 capture A2.1">
+                </div>
+                <div class="image-container">
+                    <img src="images/A2.2....jpg" alt="A.1 capture A2.2">
+                </div>
+                <div class="image-container">
+                    <img src="images/A2.2.21.jpg" alt="A.1 capture A2.2.21">
+                </div>
+                <div class="image-container">
+                    <img src="images/A2.2.2.jpg" alt="A.1 capture A2.2.2">
+                </div>
+            </div>
+        </section>
+
+        <!-- Section A.2: Recover Homographies -->
+        <section id="recover-homographies">
+            <h2>A.2: Recover Homographies</h2>
+
+            <div class="content-wrapper">
+                <div class="image-container">
+                    <img src="images/a2.png" alt="Homography visualization">
+                </div>
+
+                <div class="text-content">
+                    <h3>Building the Linear System</h3>
+                    <div class="equation">
+                        <p>[-x1, -y1, -1, 0, 0, 0, x1 * x2, y1 * x2, x2]</p>
+                        <p>[0, 0, 0, -x1, -y1, -1, x1 * y2, y1 * y2, y2]</p>
+                    </div>
+
+                    <h3>Recovered Homography</h3>
+                    <div class="matrix">
+                        <pre>
+[[ 2.96145282e+00 -2.69013136e-01 -1.79893332e+03]
+ [ 1.54488354e+00  2.38437216e+00 -1.26461849e+03]
+ [ 1.88405323e-03 -1.62841232e-04  1.00000000e+00]]
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section A.3: Warp the Images -->
+        <section id="warp-images">
+            <h2>A.3: Warp the Images</h2>
+
+            <div class="image-container">
+                <img src="images/a3.png" alt="Warped Image">
+            </div>
+        </section>
+
+        <!-- Section A.4: Blend the Images into a Mosaic -->
+        <section id="blend-mosaic">
+            <h2>A.4: Blend the Images into a Mosaic</h2>
+
+            <div class="image-stack">
+                <div class="image-container">
+                    <img src="images/a4.1.png" alt="Mosaic result 1">
+                </div>
+                <div class="image-container">
+                    <img src="images/a4.2.png" alt="Mosaic result 2">
+                </div>
+                <div class="image-container">
+                    <img src="images/a4.3.png" alt="Mosaic result 3">
+                </div>
+            </div>
+
+            <div class="procedure">
+                <h3>My Procedure</h3>
+                <ul>
+                    <li>I begin by solving for <code>h_comp = computeH(im2_pts, im1_pts)</code>. That gives the 3x3 homography mapping pixels from the second image into the reference frame. Every subsequent step uses this matrix.</li>
+                    <li><strong>weights(shape)</strong> produces a per-pixel weight <code>w(x, y)</code> proportional to the minimum distance from the pixel to the image boundary. Algebraically, the routine computes <code>w(x, y) = d(x, y) / d_max</code>, so the center of the image (where <code>d = d_max</code>) carries weight 1 and the borders drop to zero. This weight acts like a feathering mask.</li>
+                    <li><strong>inputs(image_input, H, out, offset)</strong> sets up the warped coordinates. For each pixel <code>p = (u, v, 1)</code> in the mosaic canvas (shifted by the offset), I compute <code>H^{-1} p</code>, then divide by the homogeneous coordinate to get the sampling location in the source image. This is exactly the inverse-warp math from A.3.</li>
+                    <li><strong>mosaic(b, warp, H)</strong> does the actual blending. I allocate the big canvas <code>C</code> and an accumulator <code>S</code>. I place the reference image <code>I_r</code> into <code>C</code> with its weights, i.e. <code>C += I_r * w_r</code> and <code>S += w_r</code>. After warping the second image <code>I_w</code> and its weight map <code>w_w</code> through the homography, I accumulate <code>C += I_w * w_w</code> and <code>S += w_w</code>. The final mosaic is the element-wise ratio <code>M = C / S</code>, which is just weighted averaging.</li>
+                    <li>The plots at the end of the notebook confirm the algebra: the overlapping region has a smooth transition, meaning the combined weight <code>S</code> never dips to zero and the homography aligns both views correctly.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 CS180 Project #3</p>
+    </footer>
+</body>
+</html>
