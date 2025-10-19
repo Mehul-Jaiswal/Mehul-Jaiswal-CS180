@@ -93,6 +93,10 @@ section h3 {
     margin: 0 auto;
 }
 
+.image-grid--three {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
 .image-stack {
     display: flex;
     flex-direction: column;
@@ -198,6 +202,21 @@ footer p {
 }
 
 /* Responsive Design */
+.caption {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+@media (max-width: 768px) {
+    .image-grid--two {
+        grid-template-columns: 1fr;
+    }
+
+    .image-grid--three {
+        grid-template-columns: 1fr;
+    }
+}
 @media (max-width: 768px) {
     header h1 {
         font-size: 1.8rem;

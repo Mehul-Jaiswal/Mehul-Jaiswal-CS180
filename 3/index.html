@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project #3 (proj3A) CS180</title>
+    <title>Project #3 CS180</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Project #3 (proj3A) CS180</h1>
+        <h1>Project #3 CS180</h1>
     </header>
 
     <main>
@@ -94,6 +94,118 @@
                     <li><strong>mosaic(b, warp, H)</strong> does the actual blending. I allocate the big canvas <code>C</code> and an accumulator <code>S</code>. I place the reference image <code>I_r</code> into <code>C</code> with its weights, i.e. <code>C += I_r * w_r</code> and <code>S += w_r</code>. After warping the second image <code>I_w</code> and its weight map <code>w_w</code> through the homography, I accumulate <code>C += I_w * w_w</code> and <code>S += w_w</code>. The final mosaic is the element-wise ratio <code>M = C / S</code>, which is just weighted averaging.</li>
                     <li>The plots at the end of the notebook confirm the algebra: the overlapping region has a smooth transition, meaning the combined weight <code>S</code> never dips to zero and the homography aligns both views correctly.</li>
                 </ul>
+            </div>
+        </section>
+
+        <!-- Section B.1: Harris Corner Detection -->
+        <section id="harris-corners">
+            <h2>B.1: Harris Corner Detection</h2>
+            <p>
+                The notebook calls <code>get_harris_corners</code> from the provided <code>harris.py</code>, which returns both the
+                Harris response map and the raw <code>(y, x)</code> coordinates. The left overlay renders every detector
+                response on the color image (converted to grayscale for scoring), verifying that the implementation
+                fires on junctions rather than edge fragments.
+            </p>
+
+            <div class="image-grid image-grid--two">
+                <div class="image-container">
+                    <img src="images/B.1.1.png" alt="Raw Harris corners overlaid on the source image">
+                    <p class="caption">Harris corner detections prior to spatial suppression.</p>
+                </div>
+                <div class="image-container">
+                    <img src="images/B.1.2.png" alt="Corners preserved by ANMS overlaid on the source image">
+                    <p class="caption">After Adaptive Non-Maximal Suppression (ANMS) the detections are spatially well distributed.</p>
+                </div>
+            </div>
+
+            <p>
+                I apply Adaptive Non-Maximal Suppression exactly as in the notebook: for each candidate, the code
+                searches for stronger neighbors (those with &gt; 0.9 of the point&rsquo;s response), records the squared distance
+                to the closest one, and ranks corners by that radius. Keeping the top 500 radii produces the sparser set
+                on the right.
+            </p>
+        </section>
+
+        <!-- Section B.2: Feature Descriptor Extraction -->
+        <section id="feature-descriptors">
+            <h2>B.2: Feature Descriptor Extraction</h2>
+            <p>
+                The <code>features</code> routine in <code>main_3b.ipynb</code> reuses the Harris + ANMS pipeline, then slices a 40&times;40
+                grayscale window around each retained keypoint. Each crop is blurred with <code>gaussian(..., sigma=2)</code>,
+                resized to 8&times;8, mean-subtracted, and L2-normalized. Descriptors with near-zero norm are discarded.
+                The montage below shows a sample of these normalized patches.
+            </p>
+
+            <div class="image-container">
+                <img src="images/B.2.png" alt="Sample of normalized 8x8 feature descriptors">
+                <p class="caption">Sampled 40&times;40 windows shrunk to 8&times;8, normalized to zero mean and unit norm.</p>
+            </div>
+        </section>
+
+        <!-- Section B.3: Feature Matching -->
+        <section id="feature-matching">
+            <h2>B.3: Feature Matching</h2>
+            <p>
+                For matching I evaluate all descriptor pairs, compute SSD distances, and sort each row to find its best and
+                second-best neighbors. Lowe&rsquo;s ratio test with a 0.5 threshold filters the list. The notebook draws the first
+                100 accepted correspondences between <code>B3.1_.jpg</code> and <code>B3.2_.jpg</code>, resulting in the alignments below.
+            </p>
+
+            <div class="image-stack">
+                <div class="image-container">
+                    <img src="images/B.3.1.png" alt="Matched features between image pair 1">
+                </div>
+                <div class="image-container">
+                    <img src="images/B.3.2.png" alt="Matched features between image pair 2">
+                </div>
+                <div class="image-container">
+                    <img src="images/B.3.3.png" alt="Matched features between image pair 3">
+                </div>
+            </div>
+        </section>
+
+        <!-- Section B.4: RANSAC for Robust Homography -->
+        <section id="ransac-homography">
+            <h2>B.4: RANSAC for Robust Homography</h2>
+            <p>
+                The surviving matches are passed into a RANSAC loop that repeats 2,000 times. Within each iteration the
+                helper from Part&nbsp;A (<code>helpers.computeH</code>) estimates a homography from a random four-point subset,
+                the inliers are those whose reprojection error is under five pixels (via <code>helpers.helper</code>), and the best
+                mask is kept. After recomputing <code>H</code> with all inliers, <code>helpers.mosaic</code> blends the images. Each row
+                below contrasts the manually aligned mosaic from Part&nbsp;A with the automatic pipeline.
+            </p>
+
+            <div class="image-grid image-grid--two comparison-pair">
+                <div class="image-container">
+                    <img src="images/B.4.1_manual.png" alt="Scene 1 manual mosaic">
+                    <p class="caption">Scene 1 — manual control points (Part&nbsp;A).</p>
+                </div>
+                <div class="image-container">
+                    <img src="images/B.4.1.png" alt="Scene 1 automatic mosaic">
+                    <p class="caption">Scene 1 — automatic Harris/ANMS + RANSAC stitching.</p>
+                </div>
+            </div>
+
+            <div class="image-grid image-grid--two comparison-pair">
+                <div class="image-container">
+                    <img src="images/B.4.2_manual.png" alt="Scene 2 manual mosaic">
+                    <p class="caption">Scene 2 — manual control points (Part&nbsp;A).</p>
+                </div>
+                <div class="image-container">
+                    <img src="images/B.4.2.png" alt="Scene 2 automatic mosaic">
+                    <p class="caption">Scene 2 — automatic Harris/ANMS + RANSAC stitching.</p>
+                </div>
+            </div>
+
+            <div class="image-grid image-grid--two comparison-pair">
+                <div class="image-container">
+                    <img src="images/B.4.3_manual.png" alt="Scene 3 manual mosaic">
+                    <p class="caption">Scene 3 — manual control points (Part&nbsp;A).</p>
+                </div>
+                <div class="image-container">
+                    <img src="images/B.4.3.png" alt="Scene 3 automatic mosaic">
+                    <p class="caption">Scene 3 — automatic Harris/ANMS + RANSAC stitching.</p>
+                </div>
             </div>
         </section>
     </main>
