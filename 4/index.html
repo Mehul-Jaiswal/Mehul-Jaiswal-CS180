@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project 4 · Neural Fields + NeRF</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <p class="project-label">CS 180 · Project 4</p>
+      <h1>Neural Fields &amp; NeRF Showcase</h1>
+      <p class="intro">
+        Every deliverable for Parts 0&ndash;2.6 lives here. Drop your latest
+        figures, plots, and videos inside the <code>images</code> folder and the
+        gallery will stay in sync.
+      </p>
+      <nav class="subnav">
+        <a href="#part0">Part 0</a>
+        <a href="#part1">Part 1</a>
+        <a href="#part2">Part 2</a>
+        <a href="#part26">Part 2.6</a>
+      </nav>
+    </header>
+
+    <main class="content">
+      <section id="part0" class="panel">
+        <div class="section-header">
+          <p class="eyebrow">Part 0</p>
+          <h2>Camera Calibration &amp; 3D Scanning</h2>
+          <p>
+            Detected 4&times;4 ArUco tags in every calibration capture inside Viser,
+            recovered intrinsics with a 0.66&nbsp;px RMS reprojection error, and exported
+            the poses/undistorted frames that power the rest of the project.
+          </p>
+        </div>
+        <ul class="notes">
+          <li>
+            <strong>Calibration.</strong> cv2.calibrateCamera on 30/30 images produced
+            fx&nbsp;=&nbsp;3606.7, fy&nbsp;=&nbsp;3600.5, (cx, cy)&nbsp;=&nbsp;(1478.6,&nbsp;2018.4) and
+            moderate radial distortion (k1&nbsp;=&nbsp;0.289, k2&nbsp;=&nbsp;-2.84, k3&nbsp;=&nbsp;6.90).
+          </li>
+          <li>
+            <strong>Pose solving.</strong> solvePnP succeeded for 46/49 shots; only three
+            blurred frames lacked a visible tag. All valid c2w matrices were saved to
+            <code>camera_poses_part0_3.npz</code>.
+          </li>
+          <li>
+            <strong>Dataset export.</strong> After undistortion I wrote a compact NeRF set
+            with 32 train / 7 val / 7 test images plus the shared intrinsics file
+            (<code>nerf_dataset_part0_4.npz</code>).
+          </li>
+        </ul>
+        <div class="gallery three-grid">
+          <figure class="media-card">
+            <img src="images/part0.1.png" alt="Camera frustums front view" loading="lazy" />
+          </figure>
+          <figure class="media-card">
+            <img src="images/part0.1(2).png" alt="Camera frustums angled view" loading="lazy" />
+          </figure>
+          <figure class="media-card">
+            <img src="images/part0.1(3).png" alt="Camera frustums close view" loading="lazy" />
+          </figure>
+        </div>
+      </section>
+
+      <section id="part1" class="panel">
+        <div class="section-header">
+          <p class="eyebrow">Part 1</p>
+          <h2>Fit a Neural Field to a 2D Image</h2>
+          <p>
+            A 256-wide ReLU MLP with 10-frequency positional encoding was trained
+            for 2k iterations to memorize both the provided test image and one of my
+            own; the figures below document the architecture, training dynamics, and
+            ablations over width and positional encoding frequency.
+          </p>
+        </div>
+
+        <article class="subsection">
+          <h3>Model Architecture Report</h3>
+          <p>The best-performing neural field is summarized below.</p>
+          <dl class="metrics">
+            <div>
+              <dt>Layers</dt>
+              <dd>Positional encoding feeding 3&nbsp;&times;&nbsp;256 ReLU blocks + RGB head</dd>
+            </div>
+            <div>
+              <dt>Width</dt>
+              <dd>256 hidden units (64 used for ablations)</dd>
+            </div>
+            <div>
+              <dt>Activation</dt>
+              <dd>ReLU (hidden) + Sigmoid (RGB)</dd>
+            </div>
+            <div>
+              <dt>Learning Rate</dt>
+              <dd>Adam, 1&times;10<sup>-2</sup></dd>
+            </div>
+            <div>
+              <dt>Scheduler / Notes</dt>
+              <dd>
+                10-frequency sine/cosine positional encoding, 10k random pixels per step,
+                2,000 iterations, snapshots at [1, 10, 100, 500, 1000, 2000].
+              </dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="subsection">
+          <h3>Training Progression</h3>
+          <p>
+            Both training runs converge rapidly: the provided photo reaches
+            a 2.46&nbsp;&times;&nbsp;10<sup>-3</sup> MSE (&asymp;26&nbsp;dB PSNR) while my own picture falls to
+            8.49&nbsp;&times;&nbsp;10<sup>-4</sup> (&asymp;30.7&nbsp;dB). The montages capture the same six checkpoints.
+          </p>
+          <div class="gallery two-grid">
+            <figure class="media-card">
+              <img src="images/part1.1.png" alt="Training progression on provided test image" loading="lazy" />
+              <figcaption>Provided test image · iters 1→2000, PSNR plateaus &asymp;26&nbsp;dB.</figcaption>
+            </figure>
+            <figure class="media-card">
+              <img src="images/part1.2.png" alt="Training progression on personal image" loading="lazy" />
+              <figcaption>Personal image · iters 1→2000, sharper convergence (PSNR &gt;30&nbsp;dB).</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <article class="subsection">
+          <h3>Final Results · Encoding vs Width</h3>
+          <p>The 2&times;2 ablation grid compares width w&nbsp;&in;&nbsp;{64, 256} and Lmax&nbsp;&in;&nbsp;{2, 10}.</p>
+          <figure class="media-card">
+            <img src="images/part1.3.png" alt="2x2 grid comparing widths and positional encoding frequencies" loading="lazy" />
+            <figcaption>
+              Two-by-two grid of reconstructions for (w, L)&nbsp;&in;&nbsp;{(64,2), (64,10), (256,2), (256,10)}.
+            </figcaption>
+          </figure>
+          <ul class="notes">
+            <li><strong>w=64, L=2</strong> &mdash; 21.9&nbsp;dB PSNR, heavy blur and muted colors.</li>
+            <li><strong>w=64, L=10</strong> &mdash; 24.9&nbsp;dB PSNR, sharper edges but banding artifacts.</li>
+            <li><strong>w=256, L=2</strong> &mdash; 23.6&nbsp;dB PSNR, width alone cannot handle high-frequency textures.</li>
+            <li><strong>w=256, L=10</strong> &mdash; 26.8&nbsp;dB PSNR, best reconstruction with crisp highlights.</li>
+          </ul>
+        </article>
+
+        <article class="subsection">
+          <h3>PSNR Curve</h3>
+          <p>
+            The PSNR jumps to &gt;25&nbsp;dB within the first 500 iterations and then slowly
+            creeps toward 26&nbsp;dB by iteration 2000, confirming diminishing returns once
+            the network has memorized most pixel colors.
+          </p>
+          <figure class="media-card">
+            <img src="images/part1.4.png" alt="PSNR curve for image field training" loading="lazy" />
+            <figcaption>PSNR vs iterations for the provided image-field training run.</figcaption>
+          </figure>
+        </article>
+      </section>
+
+      <section id="part2" class="panel">
+        <div class="section-header">
+          <p class="eyebrow">Part 2</p>
+          <h2>Fit a NeRF from Multi-view Images</h2>
+          <p>
+            Using the provided Lego dataset, I trained a width-256 NeRF with 64 samples per
+            ray, logging ray visualizations, validation PSNR, intermediate renders, and the
+            final spherical sweep shown below.
+          </p>
+        </div>
+
+        <article class="subsection">
+          <h3>Implementation Notes</h3>
+          <ul class="notes">
+            <li>
+              <strong>Ray + sample generation.</strong> Precomputed every ray/color pair for the
+              Lego train split and drew 10k rays per gradient step. Each ray is sampled at 64
+              perturbed depths between near&nbsp;=&nbsp;2&nbsp;m and far&nbsp;=&nbsp;6&nbsp;m.
+            </li>
+            <li>
+              <strong>NeRF backbone.</strong> Width-256 network with eight ReLU blocks, a skip
+              connection after layer four, 10-freq xyz encoding, 4-freq view-dir encoding, a
+              density head, and a feature-to-RGB head.
+            </li>
+            <li>
+              <strong>Volume rendering.</strong> Accumulated colors via the standard alpha
+              compositing pipeline implemented in <code>volrend</code>, which computes weights
+              from cumulative transmittance.
+            </li>
+            <li>
+              <strong>Optimization.</strong> Adam (5e-4) for 3k iterations with validation PSNR
+              evaluated every step by re-rendering the entire validation camera set; progress
+              frames stored at iters [1, 100, 250, 500, 750, 1000].
+            </li>
+          </ul>
+        </article>
+
+        <article class="subsection">
+          <h3>Visualization of Rays &amp; Samples</h3>
+          <figure class="media-card">
+            <img src="images/part2.3.1.png" alt="Visualization of rays, samples, and cameras" loading="lazy" />
+            <figcaption>100 rays with sample buckets and camera frustums.</figcaption>
+          </figure>
+        </article>
+
+        <article class="subsection">
+          <h3>Training Progression</h3>
+          <p>
+            Reconstructions evolve from noisy blobs to crisp geometry within the first
+            thousand steps; after ~750 iterations most edges, shadows, and specularities
+            are stable and later optimization mainly denoises.
+          </p>
+          <figure class="media-card">
+            <img src="images/part2.5.1.png" alt="NeRF training snapshots" loading="lazy" />
+            <figcaption>Validation render at iters 1, 100, 250, 500, 750, and 1000.</figcaption>
+          </figure>
+        </article>
+
+        <article class="subsection">
+          <h3>Validation PSNR Curve</h3>
+          <figure class="media-card">
+            <img src="images/part2.5.png" alt="Validation PSNR curve" loading="lazy" />
+            <figcaption>PSNR vs iteration on validation split.</figcaption>
+          </figure>
+        </article>
+
+        <article class="subsection">
+          <h3>Spherical Rendering · Lego</h3>
+          <div class="video-row">
+            <figure class="media-card video-card">
+              <video controls preload="metadata">
+                <source src="images/lego_sphere_1000.mp4" type="video/mp4" />
+                <p>Your browser does not support the video tag.</p>
+              </video>
+              <figcaption>
+                200 provided test cameras rendered after 1k training iterations
+                (<code>lego_sphere_1000.mp4</code>).
+              </figcaption>
+            </figure>
+            <figure class="media-card video-card">
+              <video controls preload="metadata">
+                <source src="images/lego_sphere_3000.mp4" type="video/mp4" />
+                <p>Your browser does not support the video tag.</p>
+              </video>
+              <figcaption>
+                Same camera sweep rendered after 3k iterations, highlighting the
+                denoised final model (<code>lego_sphere_3000.mp4</code>).
+              </figcaption>
+            </figure>
+          </div>
+        </article>
+      </section>
+
+      <section id="part26" class="panel">
+        <div class="section-header">
+          <p class="eyebrow">Part 2.6</p>
+          <h2>Training with Your Own Data</h2>
+          <p>
+            I first attempted to train on my own capture set, but the reconstructions
+            collapsed (see the failures below), so I switched to the provided Lafufu dataset
+            and re-ran the same NeRF pipeline with tuned hyperparameters.
+          </p>
+        </div>
+
+        <article class="subsection">
+          <h3>Personal Dataset Attempt</h3>
+          <p>
+            Even with proper calibration the radiance field failed to converge on my
+            initial captures, leading to ghosted geometry and washed-out colors.
+          </p>
+          <div class="gallery two-grid">
+            <figure class="media-card">
+              <img src="images/bad.gif" alt="Failed training GIF on personal dataset" loading="lazy" />
+              <figcaption>Bad orbit render from my capture set — geometry never formed.</figcaption>
+            </figure>
+            <figure class="media-card">
+              <img src="images/bad.png" alt="Failed intermediate render on personal dataset" loading="lazy" />
+              <figcaption>Still frame highlighting the noisy, smeared reconstruction.</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <article class="subsection">
+          <h3>Novel-View GIF</h3>
+          <figure class="media-card">
+            <img src="images/custom_orbit%20(1)%20(1).gif" alt="Custom orbit GIF" loading="lazy" />
+            <figcaption>60 evenly spaced poses orbiting the custom object.</figcaption>
+          </figure>
+        </article>
+
+        <article class="subsection">
+          <h3>Code &amp; Hyperparameter Changes</h3>
+          <ul class="notes">
+            <li>
+              Switched to the provided <code>lafufu_dataset.npz</code> split
+              (23 train / 5 val / 5 test) once my own capture set failed to converge.
+            </li>
+            <li>
+              Recomputed rays using the dataset intrinsics and trained with near&nbsp;=&nbsp;0.05&nbsp;m,
+              far&nbsp;=&nbsp;0.6&nbsp;m, and 64 stratified samples per ray.
+            </li>
+            <li>
+              Used the same width-256 NeRF (10 xyz freqs, 4 dir freqs) for 3k iterations,
+              sampling 10k random rays per step with Adam (5e-4).
+            </li>
+            <li>
+              Built a 60-frame orbit by rotating the first training pose around the
+              object (see <code>look_at_origin</code> + <code>rot_x</code>) and rendering each
+              view before compiling the GIF.
+            </li>
+          </ul>
+        </article>
+
+        <article class="subsection">
+          <h3>Training Loss</h3>
+          <figure class="media-card">
+            <img src="images/download.png" alt="Custom training loss curve" loading="lazy" />
+            <figcaption>Training loss vs iteration for the Lafufu run (1&nbsp;→&nbsp;3000 steps).</figcaption>
+          </figure>
+        </article>
+
+        <article class="subsection">
+          <h3>Intermediate Renders</h3>
+          <figure class="media-card">
+            <img src="images/download-2.png" alt="Custom NeRF intermediate renders" loading="lazy" />
+            <figcaption>
+              Montage of the Lafufu scene at iter 1 (noisy colors), iter 1000 (geometry locking in),
+              and iter 3000 (final denoised render).
+            </figcaption>
+          </figure>
+        </article>
+      </section>
+    </main>
+
+  </body>
+</html>
