@@ -1,0 +1,542 @@
+[
+  {
+    "cell": 8,
+    "output": 0,
+    "type": "stream",
+    "text": "\nA mixture of fp16 and non-fp16 filenames will be loaded.\nLoaded fp16 filenames:\n[text_encoder/model.fp16-00001-of-00002.safetensors, unet/diffusion_pytorch_model.fp16.safetensors, text_encoder/pytorch_model.bin.index.fp16.json, text_encoder/model.fp16-00002-of-00002.safetensors, text_encoder/model.safetensors.index.fp16.json, safety_checker/model.fp16.safetensors]\nLoaded non-fp16 filenames:\n[watermarker/diffusion_pytorch_model.safetensors\nIf this behavior is not expected, please check your folder structure.\n"
+  },
+  {
+    "cell": 8,
+    "output": 1,
+    "type": "display_data",
+    "text": "Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]"
+  },
+  {
+    "cell": 8,
+    "output": 2,
+    "type": "stream",
+    "text": "\nA mixture of fp16 and non-fp16 filenames will be loaded.\nLoaded fp16 filenames:\n[text_encoder/model.fp16-00001-of-00002.safetensors, unet/diffusion_pytorch_model.fp16.safetensors, text_encoder/pytorch_model.bin.index.fp16.json, text_encoder/model.fp16-00002-of-00002.safetensors, text_encoder/model.safetensors.index.fp16.json, safety_checker/model.fp16.safetensors]\nLoaded non-fp16 filenames:\n[watermarker/diffusion_pytorch_model.safetensors\nIf this behavior is not expected, please check your folder structure.\n"
+  },
+  {
+    "cell": 8,
+    "output": 3,
+    "type": "display_data",
+    "text": "Loading pipeline components...:   0%|          | 0/7 [00:00<?, ?it/s]"
+  },
+  {
+    "cell": 8,
+    "output": 4,
+    "type": "execute_result",
+    "text": "IFSuperResolutionPipeline {\n  \"_class_name\": \"IFSuperResolutionPipeline\",\n  \"_diffusers_version\": \"0.36.0\",\n  \"_name_or_path\": \"DeepFloyd/IF-II-L-v1.0\",\n  \"feature_extractor\": [\n    \"transformers\",\n    \"CLIPImageProcessor\"\n  ],\n  \"image_noising_scheduler\": [\n    \"diffusers\",\n    \"DDPMScheduler\"\n  ],\n  \"requires_safety_checker\": true,\n  \"safety_checker\": [\n    \"deepfloyd_if\",\n    \"IFSafetyChecker\"\n  ],\n  \"scheduler\": [\n    \"diffusers\",\n    \"DDPMScheduler\"\n  ],\n  \"text_encoder\": [\n    null,\n    null\n  ],\n  \"tokenizer\": [\n    \"transformers\",\n    \"T5Tokenizer\"\n  ],\n  \"unet\": [\n    \"diffusers\",\n    \"UNet2DConditionModel\"\n  ],\n  \"watermarker\": [\n    \"deepfloyd_if\",\n    \"IFWatermarker\"\n  ]\n}"
+  },
+  {
+    "cell": 10,
+    "output": 0,
+    "type": "stream",
+    "text": "You have the embeddings for the following prompts\n['a high quality picture',\n 'an oil painting of a snowy mountain village',\n 'a photorealistic close-up shot of a red apple on a wooden table, natural '\n 'sunlight',\n 'an astronaut riding a horse on the moon, high-resolution digital art',\n 'a serene Japanese garden with cherry blossoms and misty morning light',\n 'a futuristic city skyline floating above the clouds, in the style of Studio '\n 'Ghibli',\n 'a half-cat half-dragon creature sitting on a neon rooftop at night',\n 'a lion made of glowing circuit boards, cybernetic style',\n 'a butterfly with wings made of galaxies and stars',\n 'an angel made of tangled metal angles, abstract art',\n \"a dog whose shape is formed from letters spelling the word 'god'\",\n '']\n"
+  },
+  {
+    "cell": 15,
+    "output": 0,
+    "type": "display_data",
+    "text": "  0%|          | 0/20 [00:00<?, ?it/s]"
+  },
+  {
+    "cell": 15,
+    "output": 1,
+    "type": "display_data",
+    "text": "  0%|          | 0/20 [00:00<?, ?it/s]"
+  },
+  {
+    "cell": 15,
+    "output": 2,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 15,
+    "output": 3,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 16,
+    "output": 0,
+    "type": "stream",
+    "text": "We have in total 1000 noise coefficients\n"
+  },
+  {
+    "cell": 19,
+    "output": 0,
+    "type": "stream",
+    "text": "--2025-12-13 01:21:09--  http://cal-cs180.github.io/fa24/hw/proj5/assets/campanile.jpg\nResolving cal-cs180.github.io (cal-cs180.github.io)... 185.199.109.153, 185.199.110.153, 185.199.108.153, ...\nConnecting to cal-cs180.github.io (cal-cs180.github.io)|185.199.109.153|:80... connected.\nHTTP request sent, awaiting response... 301 Moved Permanently\nLocation: https://cal-cs180.github.io/fa24/hw/proj5/assets/campanile.jpg [following]\n--2025-12-13 01:21:10--  https://cal-cs180.github.io/fa24/hw/proj5/assets/campanile.jpg\nConnecting to cal-cs180.github.io (cal-cs180.github.io)|185.199.109.153|:443... connected.\nHTTP request sent, awaiting response... 200 OK\nLength: 75608 (74K) [image/jpeg]\nSaving to: \u2018campanile.jpg\u2019\n\ncampanile.jpg       100%[===================>]  73.84K  --.-KB/s    in 0.05s   \n\n2025-12-13 01:21:10 (1.52 MB/s) - \u2018campanile.jpg\u2019 saved [75608/75608]\n\nTest image:\n"
+  },
+  {
+    "cell": 19,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 22,
+    "output": 0,
+    "type": "stream",
+    "text": "t =  250\n"
+  },
+  {
+    "cell": 22,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 22,
+    "output": 2,
+    "type": "stream",
+    "text": "t =  500\n"
+  },
+  {
+    "cell": 22,
+    "output": 3,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 22,
+    "output": 4,
+    "type": "stream",
+    "text": "t =  750\n"
+  },
+  {
+    "cell": 22,
+    "output": 5,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 24,
+    "output": 0,
+    "type": "stream",
+    "text": "t =  250\n"
+  },
+  {
+    "cell": 24,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 24,
+    "output": 2,
+    "type": "stream",
+    "text": "t =  500\n"
+  },
+  {
+    "cell": 24,
+    "output": 3,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 24,
+    "output": 4,
+    "type": "stream",
+    "text": "t =  750\n"
+  },
+  {
+    "cell": 24,
+    "output": 5,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 26,
+    "output": 0,
+    "type": "stream",
+    "text": "t =  250\n"
+  },
+  {
+    "cell": 26,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 26,
+    "output": 2,
+    "type": "stream",
+    "text": "t =  500\n"
+  },
+  {
+    "cell": 26,
+    "output": 3,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 26,
+    "output": 4,
+    "type": "stream",
+    "text": "t =  750\n"
+  },
+  {
+    "cell": 26,
+    "output": 5,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 0,
+    "type": "stream",
+    "text": "Noisy image at t = 690\n"
+  },
+  {
+    "cell": 32,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 2,
+    "type": "stream",
+    "text": "Denoising step 0, t = 690\n"
+  },
+  {
+    "cell": 32,
+    "output": 3,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 4,
+    "type": "stream",
+    "text": "Denoising step 5, t = 540\n"
+  },
+  {
+    "cell": 32,
+    "output": 5,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 6,
+    "type": "stream",
+    "text": "Denoising step 10, t = 390\n"
+  },
+  {
+    "cell": 32,
+    "output": 7,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 8,
+    "type": "stream",
+    "text": "Denoising step 15, t = 240\n"
+  },
+  {
+    "cell": 32,
+    "output": 9,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 10,
+    "type": "stream",
+    "text": "Denoising step 20, t = 90\n"
+  },
+  {
+    "cell": 32,
+    "output": 11,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 12,
+    "type": "stream",
+    "text": "Final iterative denoised image:\n"
+  },
+  {
+    "cell": 32,
+    "output": 13,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 14,
+    "type": "stream",
+    "text": "One-step denoised image (baseline):\n"
+  },
+  {
+    "cell": 32,
+    "output": 15,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 16,
+    "type": "stream",
+    "text": "Gaussian-blurred noisy image:\n"
+  },
+  {
+    "cell": 32,
+    "output": 17,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 32,
+    "output": 18,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 34,
+    "output": 0,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 38,
+    "output": 0,
+    "type": "stream",
+    "text": "\n=== Campanile edit: i_start = 1, t = 960 ===\n"
+  },
+  {
+    "cell": 38,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 38,
+    "output": 2,
+    "type": "stream",
+    "text": "\n=== Campanile edit: i_start = 3, t = 900 ===\n"
+  },
+  {
+    "cell": 38,
+    "output": 3,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 38,
+    "output": 4,
+    "type": "stream",
+    "text": "\n=== Campanile edit: i_start = 5, t = 840 ===\n"
+  },
+  {
+    "cell": 38,
+    "output": 5,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 38,
+    "output": 6,
+    "type": "stream",
+    "text": "\n=== Campanile edit: i_start = 7, t = 780 ===\n"
+  },
+  {
+    "cell": 38,
+    "output": 7,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 38,
+    "output": 8,
+    "type": "stream",
+    "text": "\n=== Campanile edit: i_start = 10, t = 690 ===\n"
+  },
+  {
+    "cell": 38,
+    "output": 9,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 38,
+    "output": 10,
+    "type": "stream",
+    "text": "\n=== Campanile edit: i_start = 20, t = 390 ===\n"
+  },
+  {
+    "cell": 38,
+    "output": 11,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 38,
+    "output": 12,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 41,
+    "output": 0,
+    "type": "stream",
+    "text": "Processed image\n"
+  },
+  {
+    "cell": 41,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 42,
+    "output": 0,
+    "type": "stream",
+    "text": "100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 6/6 [00:23<00:00,  3.94s/it]\n"
+  },
+  {
+    "cell": 42,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 43,
+    "output": 0,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 43,
+    "output": 1,
+    "type": "stream",
+    "text": "Processed image\n"
+  },
+  {
+    "cell": 43,
+    "output": 2,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 44,
+    "output": 0,
+    "type": "stream",
+    "text": "100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 6/6 [00:23<00:00,  3.99s/it]\n"
+  },
+  {
+    "cell": 44,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 46,
+    "output": 0,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 49,
+    "output": 0,
+    "type": "stream",
+    "text": "Processed image\n"
+  },
+  {
+    "cell": 49,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 49,
+    "output": 2,
+    "type": "stream",
+    "text": "100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 6/6 [00:23<00:00,  3.92s/it]\n"
+  },
+  {
+    "cell": 49,
+    "output": 3,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 49,
+    "output": 4,
+    "type": "stream",
+    "text": "Processed image\n"
+  },
+  {
+    "cell": 49,
+    "output": 5,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 49,
+    "output": 6,
+    "type": "stream",
+    "text": "100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 6/6 [00:24<00:00,  4.02s/it]\n"
+  },
+  {
+    "cell": 49,
+    "output": 7,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 49,
+    "output": 8,
+    "type": "stream",
+    "text": "Processed image\n"
+  },
+  {
+    "cell": 49,
+    "output": 9,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 49,
+    "output": 10,
+    "type": "stream",
+    "text": "100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 6/6 [00:24<00:00,  4.06s/it]\n"
+  },
+  {
+    "cell": 49,
+    "output": 11,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 51,
+    "output": 0,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 51,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 53,
+    "output": 0,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  },
+  {
+    "cell": 53,
+    "output": 1,
+    "type": "display_data",
+    "text": "<IPython.core.display.HTML object>"
+  }
+]

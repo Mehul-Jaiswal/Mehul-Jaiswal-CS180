@@ -1,0 +1,230 @@
+:root {
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --panel-strong: #f0f3fa;
+  --border: #d8e1ec;
+  --primary: #2c74d4;
+  --accent: #ff9f1c;
+  --text: #0b0b0b;
+  --muted: #4a5563;
+  --glow: rgba(44, 116, 212, 0.16);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Gill Sans", "Trebuchet MS", sans-serif;
+  background: linear-gradient(120deg, #f7f9fd 0%, #eef2f9 60%, #f7f9fd 100%);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+.hero {
+  background: linear-gradient(135deg, #e8f0ff 0%, #f8fbff 100%);
+  padding: 3rem 1.5rem 3rem;
+  border-bottom: 1px solid #d9e4f2;
+}
+
+.hero__content {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(2rem, 3vw + 1rem, 3rem);
+  letter-spacing: -0.5px;
+}
+
+.lede {
+  margin: 0;
+  color: var(--muted);
+  max-width: 720px;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.seed-card {
+  max-width: 420px;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: 0 12px 28px -20px rgba(0, 0, 0, 0.25);
+}
+
+.seed-note {
+  margin: 0 0 0.35rem;
+  color: var(--muted);
+}
+
+.seed-value {
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px dashed rgba(44, 116, 212, 0.4);
+  background: #f7f9fd;
+  min-height: 2.4rem;
+  color: var(--text);
+  outline: none;
+}
+
+.seed-value:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+main {
+  max-width: 1200px;
+  margin: -2rem auto 3rem;
+  padding: 0 1.1rem;
+  position: relative;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+}
+
+.card {
+  background: var(--panel);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 1.1rem 1.1rem 1.25rem;
+  box-shadow: 0 18px 42px -32px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.card__header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.2px;
+}
+
+.card ul {
+  margin: 0 0 0.4rem;
+  padding-left: 1.05rem;
+  color: #0b0b0b;
+}
+
+.card li {
+  margin-bottom: 0.35rem;
+}
+
+.card li.sub {
+  margin-left: 0.75rem;
+  list-style: circle;
+}
+
+code {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  font-family: "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
+  font-size: 0.95em;
+}
+
+.placeholder {
+  margin-top: auto;
+  border: 1px dashed rgba(155, 179, 204, 0.7);
+  border-radius: 12px;
+  padding: 0.85rem 0.9rem;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.95rem;
+}
+
+.image-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.image-grid.two {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.image-grid.small-grid {
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+}
+
+.image-grid.three {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.image-grid.four {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.image-grid.five {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.image-grid.six {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.image-grid img {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  box-shadow: 0 10px 30px -24px rgba(0, 0, 0, 0.25);
+}
+
+.image-grid.small-grid img {
+  max-width: 120px;
+  justify-self: start;
+}
+
+figure {
+  margin: 0;
+}
+
+figcaption {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.footer {
+  text-align: center;
+  padding: 1.5rem 1.25rem 2rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  background: #f4f7fb;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    padding: 2.5rem 1.2rem 2.75rem;
+  }
+
+  main {
+    margin-top: -1.5rem;
+  }
+}

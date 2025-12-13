@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5A: The Power of Diffusion Models</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__content">
+      <p class="eyebrow">CS 180 · Project 5A</p>
+      <h1>5A: The Power of Diffusion Models!</h1>
+      <p class="lede">
+        Track every deliverable from prompt engineering through denoising, editing, inpainting, anagrams, and hybrids.
+      </p>
+      <div class="seed-card">
+        <p class="eyebrow">Random seed</p>
+        <p class="seed-note">All parts use the same seed.</p>
+        <div class="seed-value" aria-label="Random seed value">100</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid" id="part-0">
+      <article class="card">
+        <div class="card__header">
+          <p class="eyebrow">Part 0</p>
+          <h2>Prompt exploration</h2>
+        </div>
+        <ul>
+          <li>Seed: <strong>100</strong></li>
+          <li>Prompts used:</li>
+          <li class="sub">“a photorealistic close-up shot of a red apple on a wooden table, natural sunlight”</li>
+          <li class="sub">“a half-cat half-dragon creature sitting on a neon rooftop at night”</li>
+          <li class="sub">“a dog whose shape is formed from letters spelling the word 'god'”</li>
+          <li>Inference steps tried: 20 (stage 1/2) for all prompts.</li>
+          <li>Reflection: The apple prompt produced clean, realistic detail; the cat-dragon prompt matched style and color well; the text-shaped dog prompt was legible and captured the word-form silhouette.</li>
+        </ul>
+        <div class="image-grid three">
+          <figure>
+            <img src="nb_outputs/c015_o03_img00.png" alt="Apple close-up sample">
+            <figcaption>Apple · 20 steps</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c015_o03_img01.png" alt="Cat dragon sample">
+            <figcaption>Half-cat half-dragon · 20 steps</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c015_o03_img02.png" alt="Dog wordform sample">
+            <figcaption>Dog shaped like “god” · 20 steps</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-1-1">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.1</p>
+          <h2>Noisy forward pass</h2>
+        </div>
+        <ul>
+          <li>Implemented <code>forward(im, t)</code>.</li>
+          <li>Noise levels shown: t = 250, 500, 750.</li>
+        </ul>
+        <div class="image-grid three">
+          <figure>
+            <img src="nb_outputs/c024_o01_img00.png" alt="Campanile noisy t=250">
+            <figcaption>Noisy t=250</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c024_o03_img00.png" alt="Campanile noisy t=500">
+            <figcaption>Noisy t=500</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c024_o05_img00.png" alt="Campanile noisy t=750">
+            <figcaption>Noisy t=750</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-1-2">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.2</p>
+          <h2>Gaussian denoising</h2>
+        </div>
+        <ul>
+          <li>Gaussian denoising applied to each noisy image.</li>
+          <li>Timesteps: 250, 500, 750.</li>
+        </ul>
+        <div class="image-grid three">
+          <figure>
+            <img src="nb_outputs/c024_o01_img01.png" alt="Campanile denoised t=250">
+            <figcaption>Denoised t=250</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c024_o03_img01.png" alt="Campanile denoised t=500">
+            <figcaption>Denoised t=500</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c024_o05_img01.png" alt="Campanile denoised t=750">
+            <figcaption>Denoised t=750</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-1-3">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.3</p>
+          <h2>UNet noise estimation</h2>
+        </div>
+        <ul>
+          <li>t = 250, 500, 750; UNet noise estimated and removed.</li>
+          <li>Visualized original, noisy, recovered triptychs.</li>
+        </ul>
+        <div class="image-grid three">
+          <figure>
+            <img src="nb_outputs/c026_o01_img00.png" alt="Original Campanile">
+            <figcaption>Original</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c026_o01_img01.png" alt="Noisy Campanile t=250">
+            <figcaption>Noisy t=250</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c026_o01_img02.png" alt="Recovered Campanile t=250">
+            <figcaption>Recovered t=250</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-1-4">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.4</p>
+          <h2>Iterative denoising</h2>
+        </div>
+        <ul>
+          <li><code>strided_timesteps</code> from 990→0, stride 30; <code>i_start=10</code>.</li>
+          <li>Progress shown every 5 steps; final iterative, one-step, and Gaussian baselines.</li>
+        </ul>
+        <div class="image-grid four">
+          <figure>
+            <img src="nb_outputs/c032_o01_img00.png" alt="Noisy start t=690">
+            <figcaption>Noisy start</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c032_o11_img00.png" alt="Iterative mid">
+            <figcaption>Denoise step 10</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c032_o13_img00.png" alt="Iterative final">
+            <figcaption>Iterative clean</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c032_o15_img00.png" alt="Gaussian baseline">
+            <figcaption>Gaussian blur</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-1-5-sampling">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.5</p>
+          <h2>Sampling</h2>
+        </div>
+        <ul>
+          <li>5 samples using base sampling loop.</li>
+        </ul>
+        <div class="image-grid five">
+          <img src="nb_outputs/c034_o00_img00.png" alt="Sample 1">
+          <img src="nb_outputs/c034_o00_img01.png" alt="Sample 2">
+          <img src="nb_outputs/c034_o00_img02.png" alt="Sample 3">
+          <img src="nb_outputs/c034_o00_img03.png" alt="Sample 4">
+          <img src="nb_outputs/c034_o00_img04.png" alt="Sample 5">
+        </div>
+      </article>
+
+      <article class="card" id="part-1-5-cfg">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.5 (CFG)</p>
+          <h2>Classifier-free guidance</h2>
+        </div>
+        <ul>
+          <li><code>iterative_denoise_cfg</code> with CFG scale γ=7.</li>
+          <li>5 images for prompt “a high quality photo”.</li>
+        </ul>
+        <div class="image-grid five">
+          <img src="nb_outputs/c038_o12_img01.png" alt="CFG sample 1">
+          <img src="nb_outputs/c038_o12_img02.png" alt="CFG sample 2">
+          <img src="nb_outputs/c038_o12_img03.png" alt="CFG sample 3">
+          <img src="nb_outputs/c038_o12_img04.png" alt="CFG sample 4">
+          <img src="nb_outputs/c038_o12_img00.png" alt="CFG sample 5 (original ref)">
+        </div>
+      </article>
+
+      <article class="card" id="part-1-7">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.7</p>
+          <h2>Conditional edits</h2>
+        </div>
+        <ul>
+          <li>Campanile edits at noise levels [1,3,5,7,10,20] with prompt “a high quality photo”.</li>
+          <li>Two additional test images edited the same way.</li>
+        </ul>
+        <div class="image-grid six">
+          <img src="nb_outputs/c038_o01_img00.png" alt="Campanile i_start=1">
+          <img src="nb_outputs/c038_o03_img00.png" alt="Campanile i_start=3">
+          <img src="nb_outputs/c038_o05_img00.png" alt="Campanile i_start=5">
+          <img src="nb_outputs/c038_o07_img00.png" alt="Campanile i_start=7">
+          <img src="nb_outputs/c038_o09_img00.png" alt="Campanile i_start=10">
+          <img src="nb_outputs/c038_o11_img00.png" alt="Campanile i_start=20">
+        </div>
+      </article>
+
+      <article class="card" id="part-1-7-1">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.7.1</p>
+          <h2>External & hand-drawn sources</h2>
+        </div>
+        <ul>
+          <li>Web image edits at [1,3,5,7,10,20].</li>
+          <li>Hand-drawn image edits at [1,3,5,7,10,20].</li>
+        </ul>
+        <div class="image-grid six">
+          <img src="nb_outputs/c042_o01_img00.png" alt="Web i_start=1">
+          <img src="nb_outputs/c042_o01_img01.png" alt="Web i_start=3">
+          <img src="nb_outputs/c042_o01_img02.png" alt="Web i_start=5">
+          <img src="nb_outputs/c042_o01_img03.png" alt="Web i_start=7">
+          <img src="nb_outputs/c042_o01_img04.png" alt="Web i_start=10">
+          <img src="nb_outputs/c042_o01_img05.png" alt="Web i_start=20">
+        </div>
+        <div class="image-grid six">
+          <img src="nb_outputs/c044_o01_img00.png" alt="Hand i_start=1">
+          <img src="nb_outputs/c044_o01_img01.png" alt="Hand i_start=3">
+          <img src="nb_outputs/c044_o01_img02.png" alt="Hand i_start=5">
+          <img src="nb_outputs/c044_o01_img03.png" alt="Hand i_start=7">
+          <img src="nb_outputs/c044_o01_img04.png" alt="Hand i_start=10">
+          <img src="nb_outputs/c044_o01_img05.png" alt="Hand i_start=20">
+        </div>
+      </article>
+
+      <article class="card" id="part-1-7-2">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.7.2</p>
+          <h2>Inpainting</h2>
+        </div>
+        <ul>
+          <li><code>inpaint</code> implemented per RePaint-style update.</li>
+          <li>Campanile mask + inpaint.</li>
+        </ul>
+        <div class="image-grid three">
+          <figure>
+            <img src="nb_outputs/c046_o00_img00.png" alt="Campanile">
+            <figcaption>Original</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c046_o00_img01.png" alt="Mask visualization">
+            <figcaption>Mask</figcaption>
+          </figure>
+          <figure>
+            <img src="nb_outputs/c046_o00_img02.png" alt="Inpainted Campanile">
+            <figcaption>Inpainted</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-1-7-3">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.7.3</p>
+          <h2>More edits</h2>
+        </div>
+        <ul>
+          <li>Campanile edits guided by text prompt across [1,3,5,7,10,20].</li>
+          <li>Two personal images edited likewise.</li>
+        </ul>
+        <div class="image-grid six">
+          <img src="images/download.png" alt="Edit 1">
+          <img src="images/download-1.png" alt="Edit 2">
+          <img src="images/download-2.png" alt="Edit 3">
+          <img src="images/download-3.png" alt="Edit 4">
+          <img src="images/download-4.png" alt="Edit 5">
+        </div>
+      </article>
+
+      <article class="card" id="part-1-8">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.8</p>
+          <h2>Visual anagrams</h2>
+        </div>
+        <ul>
+          <li>Two flip illusions with dual prompts.</li>
+        </ul>
+        <div class="image-grid two small-grid">
+          <img src="nb_outputs/c051_o00_img00.png" alt="Visual anagram 1 upright">
+          <img src="nb_outputs/c051_o00_img01.png" alt="Visual anagram 1 flipped">
+        </div>
+        <div class="image-grid two small-grid">
+          <img src="nb_outputs/c051_o01_img00.png" alt="Visual anagram 2 upright">
+          <img src="nb_outputs/c051_o01_img01.png" alt="Visual anagram 2 flipped">
+        </div>
+      </article>
+
+      <article class="card" id="part-1-9">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.9</p>
+          <h2>Hybrid images</h2>
+        </div>
+        <ul>
+          <li>Hybrid images via low/high-frequency noise mixing.</li>
+        </ul>
+        <div class="image-grid two small-grid">
+          <img src="nb_outputs/c053_o00_img00.png" alt="Hybrid 1">
+          <img src="nb_outputs/c053_o01_img00.png" alt="Hybrid 2">
+        </div>
+      </article>
+    </section>
+  </main>
+
+</body>
+</html>
