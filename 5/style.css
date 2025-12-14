@@ -228,3 +228,38 @@ figcaption {
     margin-top: -1.5rem;
   }
 }
+
+/* Project 5B: single-column image layout */
+#project-5b .image-grid {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+#project-5b .image-grid figure,
+#project-5b .image-grid img {
+  width: 100%;
+  max-width: 560px;
+}
+
+#project-5b .image-grid img {
+  height: auto;
+  object-fit: contain;
+}
+
+/* Extra reduction for the Part 1.2 sigma sweep */
+#part-5b-1-2 .image-grid {
+  grid-template-columns: auto;
+}
+
+#part-5b-1-2 .image-grid img {
+  width: 280px;
+  max-width: 280px;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+#part-5b-1-2 .image-grid figure {
+  width: 280px;
+  max-width: 280px;
+  justify-self: center;
+}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>5A: The Power of Diffusion Models</title>
+  <title>Project 5</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -311,6 +311,201 @@
         <div class="image-grid two small-grid">
           <img src="nb_outputs/c053_o00_img00.png" alt="Hybrid 1">
           <img src="nb_outputs/c053_o01_img00.png" alt="Hybrid 2">
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <header class="hero hero--secondary">
+    <div class="hero__content">
+      <p class="eyebrow">CS 180 · Project 5B</p>
+      <h1>5B: Flow Matching from Scratch</h1>
+      <p class="lede">
+        Training and sampling unconditional, time-conditioned, and class-conditioned UNets on MNIST with flow matching.
+      </p>
+    </div>
+  </header>
+
+  <main id="project-5b-main">
+    <section class="grid" id="project-5b">
+      <article class="card">
+        <div class="card__header">
+          <p class="eyebrow">Project 5B</p>
+          <h2>Flow Matching from Scratch</h2>
+        </div>
+        <ul>
+          <li>MNIST flow-matching experiments with unconditional, time-conditioned, and class-conditioned UNets.</li>
+        </ul>
+      </article>
+
+      <article class="card" id="part-5b-1-2">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.2</p>
+          <h2>Using the UNet to Train a Denoiser</h2>
+        </div>
+        <ul>
+          <li>Noising sweep at σ ∈ [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0].</li>
+        </ul>
+        <p>As σ climbs the digit slowly dissolves: light speckling at 0.2, structure barely hanging on by 0.6, and pure static at 1.0.</p>
+        <div class="image-grid">
+          <figure>
+            <img src="5b_outputs/p1_2_sigma_part1.png" alt="Sigma sweep noise visualization part 1">
+            <figcaption>Noising process across σ values (part 1).</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p1_2_sigma_part2.png" alt="Sigma sweep noise visualization part 2">
+            <figcaption>Noising process across σ values (part 2).</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p1_2_sigma_part3.png" alt="Sigma sweep noise visualization part 3">
+            <figcaption>Noising process across σ values (part 3).</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-5b-1-2-1">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.2.1</p>
+          <h2>Training @ σ=0.5</h2>
+        </div>
+        <ul>
+          <li>Training loss logged every few iterations.</li>
+          <li>Test set denoising after epoch 1 and epoch 5.</li>
+        </ul>
+        <p>Loss drops fast in the first few hundred iterations, then tapers; the denoised digits sharpen noticeably from epoch 1 to 5.</p>
+        <div class="image-grid three">
+          <figure>
+            <img src="5b_outputs/p1_2_1_loss_curve.png" alt="Training loss curve sigma 0.5">
+            <figcaption>Loss curve (σ=0.5).</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p1_2_1_epoch1_samples.png" alt="Epoch 1 denoising samples sigma 0.5">
+            <figcaption>Epoch 1 samples.</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p1_2_1_epoch5_samples.png" alt="Epoch 5 denoising samples sigma 0.5">
+            <figcaption>Epoch 5 samples.</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-5b-1-2-2">
+        <div class="card__header">
+          <p class="eyebrow">Part 1.2.2</p>
+          <h2>Out-of-Distribution & Pure-Noise Testing</h2>
+        </div>
+        <ul>
+          <li>OOD σ sweep shows robustness drops as σ→1.0 but low/mid noise is cleaned well.</li>
+          <li>Pure-noise training: loss flattens around 0.068 and outputs converge to blurry digit-like averages.</li>
+          <li>Artifacts come from the model collapsing toward the MNIST mean when inputs lack structure; later epochs sharpen only slightly.</li>
+        </ul>
+        <p>Higher σ cases retain coarse strokes but fine detail vanishes. When fed pure noise, the model drifts toward “average digit blobs” until it sees more structure.</p>
+        <div class="image-grid">
+          <figure>
+            <img src="5b_outputs/p1_2_2_ood_part1.png" alt="OOD denoising across sigma values part 1">
+            <figcaption>OOD denoising for σ sweep (part 1).</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p1_2_2_ood_part2.png" alt="OOD denoising across sigma values part 2">
+            <figcaption>OOD denoising for σ sweep (part 2).</figcaption>
+          </figure>
+        </div>
+        <div class="image-grid three">
+          <figure>
+            <img src="5b_outputs/p1_2_2_pure_noise_loss.png" alt="Pure noise training loss">
+            <figcaption>Pure-noise loss curve.</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p1_2_2_pure_noise_epoch1.png" alt="Pure noise outputs epoch 1">
+            <figcaption>Pure noise → outputs (epoch 1).</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p1_2_2_pure_noise_epoch5.png" alt="Pure noise outputs epoch 5">
+            <figcaption>Pure noise → outputs (epoch 5).</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-5b-2-2">
+        <div class="card__header">
+          <p class="eyebrow">Part 2.2</p>
+          <h2>Training the Time-conditioned UNet</h2>
+        </div>
+        <ul>
+          <li>Flow-matching loss tracked over full training.</li>
+        </ul>
+        <p>The curve free-falls early and plateaus smoothly, which matches the gradual cleanup visible in later samples.</p>
+        <figure>
+          <img src="5b_outputs/p2_2_time_cond_loss.png" alt="Time-conditioned UNet training loss">
+          <figcaption>Time-conditioned UNet loss curve.</figcaption>
+        </figure>
+      </article>
+
+      <article class="card" id="part-5b-2-3">
+        <div class="card__header">
+          <p class="eyebrow">Part 2.3</p>
+          <h2>Sampling from the Time-conditioned UNet</h2>
+        </div>
+        <ul>
+          <li>Samples after epochs 1, 5, and 10 (T=50); quality improves steadily but remains slightly rough.</li>
+        </ul>
+        <p>Early digits are lumpy; by epoch 5 they read correctly, and epoch 10 mostly fixes stray pixels though some edges stay fuzzy.</p>
+        <div class="image-grid three">
+          <figure>
+            <img src="5b_outputs/p2_3_time_cond_samples_epoch1.png" alt="Time-conditioned samples epoch 1">
+            <figcaption>Epoch 1 samples.</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p2_3_time_cond_samples_epoch5.png" alt="Time-conditioned samples epoch 5">
+            <figcaption>Epoch 5 samples.</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p2_3_time_cond_samples_epoch10.png" alt="Time-conditioned samples epoch 10">
+            <figcaption>Epoch 10 samples.</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="card" id="part-5b-2-5">
+        <div class="card__header">
+          <p class="eyebrow">Part 2.5</p>
+          <h2>Training the Class-conditioned UNet</h2>
+        </div>
+        <ul>
+          <li>Exponential LR scheduler removed; kept Adam with lr=1e-2 and the same 10 epochs to maintain stability.</li>
+          <li>Loss stays smooth and matches the scheduled baseline without extra decay tricks.</li>
+        </ul>
+        <p>I simply held the learning rate constant no fancy decay and the loss trace stayed steady, keeping parity with the scheduler run.</p>
+        <figure>
+          <img src="5b_outputs/p2_5_class_cond_loss.png" alt="Class-conditioned UNet training loss">
+          <figcaption>Class-conditioned UNet loss curve (no scheduler).</figcaption>
+        </figure>
+      </article>
+
+      <article class="card" id="part-5b-2-6">
+        <div class="card__header">
+          <p class="eyebrow">Part 2.6</p>
+          <h2>Sampling from the Class-conditioned UNet</h2>
+        </div>
+        <ul>
+          <li>4 samples per digit after epochs 1, 5, and 10 (guidance scale 5.0).</li>
+          <li>Class conditioning accelerates convergence clean digits by epoch 5 and sharper by epoch 10.</li>
+        </ul>
+        <p>Conditioning locks in digit identity early; by epoch 5 most strokes are clean, and epoch 10 mainly polishes thickness and edges.</p>
+        <div class="image-grid three">
+          <figure>
+            <img src="5b_outputs/p2_6_class_cond_samples_epoch1.png" alt="Class-conditioned samples epoch 1">
+            <figcaption>Epoch 1 samples.</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p2_6_class_cond_samples_epoch5.png" alt="Class-conditioned samples epoch 5">
+            <figcaption>Epoch 5 samples.</figcaption>
+          </figure>
+          <figure>
+            <img src="5b_outputs/p2_6_class_cond_samples_epoch10.png" alt="Class-conditioned samples epoch 10">
+            <figcaption>Epoch 10 samples.</figcaption>
+          </figure>
         </div>
       </article>
     </section>
